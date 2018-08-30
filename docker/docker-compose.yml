@@ -77,6 +77,7 @@ services:
     depends_on:
       - tob-db
       - tob-solr
+      - rabbitmq
     command: >
         /bin/bash -c "
         echo waiting for solr ...;
@@ -86,6 +87,55 @@ services:
         else
           ${STI_SCRIPTS_PATH}/run;
         fi"
+
+
+  tob-worker:
+    image: django
+    environment:
+      - APP_CONFIG=${APP_CONFIG}
+      - APP_MODULE=${APP_MODULE}
+      - DATABASE_SERVICE_NAME=${DATABASE_SERVICE_NAME}
+      - DATABASE_ENGINE=${DATABASE_ENGINE}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DEBUG=${DEBUG}
+      - SQL_DEBUG=${SQL_DEBUG}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL}
+      - SOLR_SERVICE_NAME=${SOLR_SERVICE_NAME}
+      - SOLR_CORE_NAME=${SOLR_CORE_NAME}
+      - TOB_DB_SERVICE_HOST=${DATABASE_SERVICE_NAME}
+      - TOB_DB_SERVICE_PORT=5432
+      - TOB_SOLR_SERVICE_HOST=${SOLR_SERVICE_NAME}
+      - TOB_SOLR_SERVICE_PORT=8983
+      - INDY_WALLET_SEED=${INDY_WALLET_SEED}
+      - LEDGER_URL=${LEDGER_URL}
+      - INDY_WALLET_TYPE=${INDY_WALLET_TYPE}
+      - INDY_WALLET_URL=${INDY_WALLET_URL}
+      - STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH}
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-1}
+      - RUST_LOG=${RUST_LOG}
+      - RUST_BACKTRACE=${RUST_BACKTRACE}
+      - TOB_THEME=${TOB_THEME}
+    volumes:
+      - ../tob-api/api:/home/indy/api
+      - ../tob-api/api_v2:/home/indy/api_v2
+      - tob-wallet:/home/indy/.indy_client/wallet
+    networks:
+      - tob
+    depends_on:
+      - tob-db
+      - tob-solr
+      - rabbitmq
+    command: >
+        /bin/bash -c "
+        echo waiting for solr ...;
+        sleep 10;
+        celery -A tob_api worker -l info"
+
+
 
   # 
   # schema-spy
@@ -145,6 +195,13 @@ services:
       - 5432:5432
     volumes:
       - tob-data:/var/lib/pgsql/data     
+
+  rabbitmq:
+      image: rabbitmq
+      networks:
+        - tob
+      ports:
+        - '5672:5672'
 
 networks:
   tob:
