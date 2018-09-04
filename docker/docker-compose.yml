@@ -133,7 +133,7 @@ services:
         /bin/bash -c "
         echo waiting for solr ...;
         sleep 10;
-        celery -A tob_api worker -l info"
+        celery -A tob_api worker -E -l info"
 
 
 
@@ -197,11 +197,17 @@ services:
       - tob-data:/var/lib/pgsql/data     
 
   rabbitmq:
-      image: rabbitmq
-      networks:
-        - tob
-      ports:
-        - '5672:5672'
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=RABBIT_USER
+      - RABBITMQ_DEFAULT_PASS=RABBIT_PASSWORD
+    networks:
+      - tob
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - tob-rabbit:/var/lib/rabbitmq
 
 networks:
   tob:
@@ -209,3 +215,4 @@ networks:
 volumes:
   tob-data:
   tob-wallet:
+  tob-rabbit:
