@@ -384,7 +384,7 @@ case "${COMMAND}" in
 start)
 	_startupParams=$(getStartupParams $@)
 	configureEnvironment $@
-	docker-compose up ${_startupParams}
+	docker-compose up --scale tob-worker=2 ${_startupParams}
 	;;
 stop)
 	configureEnvironment
