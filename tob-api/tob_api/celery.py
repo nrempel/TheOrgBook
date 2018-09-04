@@ -5,7 +5,12 @@ from celery import Celery
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tob_api.settings")
 
-app = Celery("tob_api", broker='pyamqp://RABBIT_USER:RABBIT_PASSWORD@rabbitmq//')
+app = Celery(
+    "tob_api",
+    broker="pyamqp://{}:{}@rabbitmq//".format(
+        os.environ.get("RABBITMQ_USER"), os.environ.get("RABBITMQ_PASSWORD")
+    ),
+)
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
