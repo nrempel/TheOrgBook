@@ -293,7 +293,7 @@
                     "value": "${APP_SCRIPT}"
                   },
                   {
-                    "name": "RABBIT_USER",
+                    "name": "RABBITMQ_USER",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${RABBITMQ_SVC_NAME}",
@@ -302,7 +302,7 @@
                     }
                   },
                   {
-                    "name": "RABBIT_PASSWORD",
+                    "name": "RABBITMQ_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${RABBITMQ_SVC_NAME}",
