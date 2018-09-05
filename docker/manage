@@ -234,6 +234,10 @@ configureEnvironment() {
 	# tob-solr
 	export CORE_NAME="the_org_book"
 
+	# rabbitmq
+	export RABBITMQ_USER="RABBITMQ_USER"
+	export RABBITMQ_PASSWORD="RABBITMQ_PASSWORD"
+
 	# tob-api
 	export APP_CONFIG=${APP_CONFIG:-}
 	export APP_MODULE=tob_anchor.boot:init_app
@@ -370,7 +374,7 @@ case "${COMMAND}" in
 start)
 	_startupParams=$(getStartupParams $@)
 	configureEnvironment $@
-	docker-compose up ${_startupParams}
+	docker-compose up --scale tob-worker=2 ${_startupParams}
 	;;
 stop)
 	configureEnvironment
