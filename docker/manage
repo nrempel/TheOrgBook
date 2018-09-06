@@ -159,19 +159,20 @@ build-api() {
 		'../tob-api' \
 		'bcgovimages/von-image:py36-1.6-2-s2i' \
 		'django'
-}
 
-build-wallet() {
-	#
-	# tob-wallet
-	#
-	echo -e "\nBuilding tob-wallet image ..."
-	${S2I_EXE} build \
-		-e "HTTP_PROXY=${HTTP_PROXY}" \
-		-e "HTTPS_PROXY=${HTTPS_PROXY}" \
-		'../tob-wallet' \
-		'registry.access.redhat.com/rhscl/python-35-rhel7:3.5' \
-		'tob-wallet'
+	# For the built image to work correctly on Windows it currently needs to be built from the repository.
+	# Otherwise scripts will not be marked as executable.
+	# Example:
+
+	# echo -e "\nBuilding django image ..."
+	# ${S2I_EXE} build \
+	# 	-e "HTTP_PROXY=${HTTP_PROXY}" \
+	# 	-e "HTTPS_PROXY=${HTTPS_PROXY}" \
+	# 	'https://github.com/WadeBarnes/TheOrgBook.git' \
+	# 	-r rabbitmq \
+	# 	--context-dir 'tob-api' \
+	# 	'bcgovimages/von-image:py36-1.6-2-s2i' \
+	# 	'django'
 }
 
 buildImages() {
@@ -180,7 +181,6 @@ buildImages() {
 	build-db
 	build-schema-spy
 	build-api
-	build-wallet
 }
 
 configureEnvironment() {
@@ -256,16 +256,6 @@ configureEnvironment() {
 	export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
 	export SQL_DEBUG=${SQL_DEBUG:-}
 	export WEB_CONCURRENCY=${WEB_CONCURRENCY:-5}
-
-	# wallet type a command-line parameter (like seed) default to "remote" if not specified
-	export INDY_WALLET_URL=http://tob-wallet:8080/api/v1/
-	export INDY_WALLET_TYPE=${wallet}
-
-	if [ "$COMMAND" == "start" ]; then
-		if [ -z "$wallet" ]; then
-			export INDY_WALLET_TYPE="remote"
-		fi
-	fi
 
 	# tob-web
 	export TOB_THEME=${TOB_THEME:-bcgov}
@@ -404,9 +394,6 @@ build)
 	case "$@" in
 	tob-api)
 		build-api
-		;;
-	tob-wallet)
-		build-wallet
 		;;
 	tob-web)
 		build-web

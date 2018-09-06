@@ -123,6 +123,7 @@ services:
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
       - TOB_THEME=${TOB_THEME}
+      - APP_SCRIPT=${APP_SCRIPT:-start-celery-worker.sh}
     volumes:
       - ../tob-api/api:/home/indy/api
       - ../tob-api/api_v2:/home/indy/api_v2
@@ -137,9 +138,7 @@ services:
         /bin/bash -c "
         echo waiting for solr ...;
         sleep 10;
-        celery -A tob_api worker -E -l info"
-
-
+        ${STI_SCRIPTS_PATH}/run;"
 
   # 
   # schema-spy
