@@ -201,7 +201,7 @@ async def store_credential(request):
     perf_proc = _time_start("process_credential")
     if result.get("stored"):
         stored = result["stored"]
-        tasks.process_credential(
+        tasks.process_credential.delay(
             stored.cred.cred_data, stored.cred.cred_req_metadata, stored.cred_id
         )
     LOGGER.warn("<<< Store credential: %s", _time_end(perf_proc))
